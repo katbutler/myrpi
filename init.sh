@@ -150,7 +150,6 @@ install_apt_packages() {
     yq
     htop
     zoxide
-    tldr
     ripgrep
     tmux
     lazygit

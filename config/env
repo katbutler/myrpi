@@ -237,4 +237,3 @@ notes() {
 # ============================================================================
 
 echo "Raspberry Pi Development Environment loaded"
-echo "Type 'tldr <command>' for quick help on any command"

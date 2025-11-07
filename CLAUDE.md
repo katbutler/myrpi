@@ -44,7 +44,7 @@ sudo ./init.sh setup
 ### What the Script Does
 
 1. Updates system packages (`apt update && apt upgrade`)
-2. Installs apt packages (git, jq, yq, htop, zoxide, tldr, ripgrep, tmux, lazygit, httpie)
+2. Installs apt packages (git, jq, yq, htop, zoxide, ripgrep, tmux, lazygit, httpie)
 3. Installs GitHub CLI (gh) via official apt repository
 4. Downloads and installs GitHub releases with SHA256 verification:
    - neovim (v0.11.5)
