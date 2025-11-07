@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This repository contains Raspberry Pi scripts for the G50-W25 CEGEP course. The scripts are written in bash and intended to configure the Raspberry Pi with common tools used in this class.
+This repository (myrpi) contains Raspberry Pi scripts for the G50-W25 CEGEP course. The scripts are written in bash and intended to configure the Raspberry Pi with common tools used in this class.
 
 ## Repository Structure
 
@@ -21,7 +21,7 @@ This project targets Raspberry Pi hardware. When developing scripts:
 ## Repository Structure
 
 ```
-rpi-scripts/
+myrpi/
 ├── init.sh           # Main setup script
 ├── config/
 │   └── env          # Shell environment configuration
@@ -55,6 +55,7 @@ sudo ./init.sh setup
 6. Sets up LazyVim configuration for neovim
 7. Copies `config/env` to `~/.config/myrpi/env`
 8. Modifies `~/.bashrc` to source the environment file
+9. Configures global git aliases for common operations
 
 ### Script Features
 
@@ -95,6 +96,25 @@ The `config/env` file contains:
 - History settings and shell options
 
 To add new configurations, edit `config/env` and they'll be applied on next shell restart.
+
+### Git Aliases
+
+The script automatically configures these global git aliases:
+
+- `git s` → `git status`
+- `git co` → `git checkout`
+- `git publish` → `git push origin main`
+- `git branch-name` → Get current branch name
+- `git pull-current` → Pull from origin for current branch
+- `git lol` → Pretty formatted log with colors
+- `git fzf-branch` → List branches with fzf
+- `git fzf-co` → Checkout branch using fzf
+- `git l` → `git log`
+- `git com` → `git commit`
+- `git br` → `git branch -vv` (verbose branch list)
+- `git unstage` → `git reset HEAD`
+- `git sha` → Get full commit SHA
+- `git shortsha` → Get short commit SHA
 
 ## Git Workflow
 

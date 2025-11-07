@@ -381,6 +381,46 @@ setup_config() {
   fi
 }
 
+# Configure git aliases
+setup_git_aliases() {
+  local actual_user=$(get_actual_user)
+
+  log_info "Setting up git aliases..."
+
+  # Define aliases as "name|command" pairs
+  local aliases=(
+    "s|status"
+    "co|checkout"
+    "publish|push origin main"
+    "branch-name|rev-parse --abbrev-ref HEAD"
+    "pull-current|!git pull origin \$(git rev-parse --abbrev-ref HEAD)"
+    "lol|log --pretty=format:'%C(yellow)%h %Cred%ad %Cblue%<(15,trunc)%an%Cgreen%d %Creset%s' --date=short"
+    "fzf-branch|!git branch | fzf"
+    "fzf-co|!f() { git checkout \$(git branch | fzf); }; f"
+    "l|log"
+    "com|commit"
+    "br|branch -vv"
+    "unstage|reset HEAD"
+    "sha|rev-parse HEAD"
+    "shortsha|rev-parse --short HEAD"
+  )
+
+  for alias_pair in "${aliases[@]}"; do
+    local alias_name="${alias_pair%%|*}"
+    local alias_cmd="${alias_pair#*|}"
+
+    # Check if alias already exists
+    if sudo -u "$actual_user" git config --global --get "alias.$alias_name" &>/dev/null; then
+      log_info "Git alias '$alias_name' already exists, skipping"
+    else
+      sudo -u "$actual_user" git config --global "alias.$alias_name" "$alias_cmd"
+      log_info "Added git alias: $alias_name"
+    fi
+  done
+
+  log_info "Git aliases configured successfully"
+}
+
 # Display welcome banner
 show_welcome_banner() {
   echo ""
@@ -431,6 +471,7 @@ setup() {
   install_asdf
   install_fzf
   setup_config
+  setup_git_aliases
 
   log_info "Setup completed successfully!"
   log_info "Please restart your shell or run: source ~/.bashrc"
