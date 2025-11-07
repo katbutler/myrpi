@@ -343,10 +343,28 @@ setup_config() {
   # Create config directory
   sudo -u "$actual_user" mkdir -p "$config_dir"
 
-  # Copy env file
+  # Copy env file with checksum comparison
   if [[ -f "$SCRIPT_DIR/config/env" ]]; then
-    sudo -u "$actual_user" cp "$SCRIPT_DIR/config/env" "$config_dir/env"
-    log_info "Copied config/env to $config_dir/env"
+    local source_env="$SCRIPT_DIR/config/env"
+    local target_env="$config_dir/env"
+
+    # If target exists, compare checksums
+    if [[ -f "$target_env" ]]; then
+      local source_sha=$(sha256sum "$source_env" | awk '{print $1}')
+      local target_sha=$(sha256sum "$target_env" | awk '{print $1}')
+
+      if [[ "$source_sha" != "$target_sha" ]]; then
+        log_warn "Config file has changed, updating $target_env"
+        sudo -u "$actual_user" cp "$source_env" "$target_env"
+        log_info "Updated config/env with new version from repository"
+      else
+        log_info "Config file is up to date, skipping"
+      fi
+    else
+      # Target doesn't exist, copy it
+      sudo -u "$actual_user" cp "$source_env" "$target_env"
+      log_info "Copied config/env to $config_dir/env"
+    fi
   else
     log_warn "config/env not found in repository, skipping"
   fi

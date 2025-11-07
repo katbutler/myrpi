@@ -62,6 +62,7 @@ sudo ./init.sh setup
 - **Error handling**: Stops on any error (`set -e`)
 - **SHA256 verification**: Verifies checksums for downloaded binaries
 - **User preservation**: Runs installations as the actual user (not root) when appropriate
+- **Config file management**: Compares SHA256 checksums of config files and automatically updates if changed
 
 ## Extending the Setup Script
 
