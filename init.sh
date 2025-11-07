@@ -285,6 +285,31 @@ install_uv() {
   sudo -u "$actual_user" bash -c 'curl -LsSf https://astral.sh/uv/install.sh | sh'
 }
 
+# Install Python with uv
+install_python() {
+  local actual_user=$(get_actual_user)
+  local user_home=$(eval echo "~$actual_user")
+  local python_version="3.14"
+
+  # Check if uv is installed
+  if ! check_command "uv"; then
+    log_error "uv is not installed. Please install uv first."
+    return 1
+  fi
+
+  log_info "Installing Python $python_version with uv..."
+
+  # Install Python using uv (runs as actual user)
+  if sudo -u "$actual_user" bash -c "export PATH=\"\$HOME/.local/bin:\$PATH\" && uv python list" | grep -q "$python_version"; then
+    log_info "Python $python_version already installed"
+  else
+    log_info "Installing Python $python_version (this may take a few minutes)..."
+    sudo -u "$actual_user" bash -c "export PATH=\"\$HOME/.local/bin:\$PATH\" && uv python install $python_version"
+  fi
+
+  log_info "Python $python_version installed successfully"
+}
+
 # Install asdf
 install_asdf() {
   local asdf_url="https://github.com/asdf-vm/asdf/releases/download/v0.18.0/asdf-v0.18.0-linux-arm64.tar.gz"
@@ -511,6 +536,7 @@ setup() {
   install_bat
   install_atuin
   install_uv
+  install_python
   install_asdf
   install_nodejs
   install_fzf
