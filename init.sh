@@ -402,11 +402,15 @@ install_exa() {
   log_info "Extracting exa..."
   unzip -q "$zipfile" -d "$TEMP_DIR/exa"
 
-  # Find and copy exa binary to /usr/local/bin
-  find "$TEMP_DIR/exa" -name "exa-linux-armv7" -exec cp {} "$INSTALL_DIR/bin/exa" \;
-  chmod +x "$INSTALL_DIR/bin/exa"
-
-  log_info "exa installed successfully"
+  # Copy exa binary from bin/exa to /usr/local/bin
+  if [[ -f "$TEMP_DIR/exa/bin/exa" ]]; then
+    cp "$TEMP_DIR/exa/bin/exa" "$INSTALL_DIR/bin/exa"
+    chmod +x "$INSTALL_DIR/bin/exa"
+    log_info "exa installed successfully"
+  else
+    log_error "exa binary not found in extracted files"
+    return 1
+  fi
 }
 
 # Install Node.js with asdf
