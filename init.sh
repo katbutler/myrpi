@@ -19,8 +19,12 @@ INSTALL_DIR="/usr/local"
 CONFIG_DIR="$HOME/.config/myrpi"
 TEMP_DIR="/tmp/rpi-setup-$$"
 
-# Script directory
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Script directory (empty when running via curl pipe)
+if [[ -n "${BASH_SOURCE[0]:-}" && "${BASH_SOURCE[0]}" != "bash" ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+else
+  SCRIPT_DIR=""
+fi
 
 # Logging functions
 log_info() {
@@ -399,47 +403,38 @@ install_eza() {
 install_nodejs() {
   local actual_user=$(get_actual_user)
   local user_home=$(eval echo "~$actual_user")
-  local asdf_dir="$user_home/.asdf"
   local nodejs_version="24.13.0"
 
-  # Check if asdf is installed
-  if [[ ! -d "$asdf_dir" ]]; then
-    log_error "asdf directory not found at $asdf_dir. Please install asdf first."
-    return 1
-  fi
-
-  # Check if asdf.sh exists
-  if [[ ! -f "$asdf_dir/asdf.sh" ]]; then
-    log_error "asdf.sh not found at $asdf_dir/asdf.sh. asdf may not be properly installed."
+  # Check if asdf binary is installed
+  if ! check_command "asdf"; then
+    log_error "asdf is not installed. Please install asdf first."
     return 1
   fi
 
   log_info "Setting up Node.js with asdf..."
 
-  # Source asdf for this script
-  export ASDF_DIR="$asdf_dir"
-  export ASDF_DATA_DIR="$asdf_dir"
-  source "$asdf_dir/asdf.sh"
+  # Set asdf data directory for the user
+  export ASDF_DATA_DIR="$user_home/.asdf"
 
   # Add nodejs plugin if not already added
-  if ! sudo -u "$actual_user" bash -c "source $asdf_dir/asdf.sh && asdf plugin list" | grep -q "nodejs"; then
+  if ! sudo -u "$actual_user" bash -c "export ASDF_DATA_DIR=\"$user_home/.asdf\" && asdf plugin list 2>/dev/null" | grep -q "nodejs"; then
     log_info "Adding asdf nodejs plugin..."
-    sudo -u "$actual_user" bash -c "source $asdf_dir/asdf.sh && asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git"
+    sudo -u "$actual_user" bash -c "export ASDF_DATA_DIR=\"$user_home/.asdf\" && asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git"
   else
     log_info "asdf nodejs plugin already installed"
   fi
 
   # Check if Node.js version is already installed
-  if sudo -u "$actual_user" bash -c "source $asdf_dir/asdf.sh && asdf list nodejs 2>/dev/null" | grep -q "$nodejs_version"; then
+  if sudo -u "$actual_user" bash -c "export ASDF_DATA_DIR=\"$user_home/.asdf\" && asdf list nodejs 2>/dev/null" | grep -q "$nodejs_version"; then
     log_info "Node.js $nodejs_version already installed"
   else
     log_info "Installing Node.js $nodejs_version (this may take a few minutes)..."
-    sudo -u "$actual_user" bash -c "source $asdf_dir/asdf.sh && asdf install nodejs $nodejs_version"
+    sudo -u "$actual_user" bash -c "export ASDF_DATA_DIR=\"$user_home/.asdf\" && asdf install nodejs $nodejs_version"
   fi
 
   # Set global Node.js version
   log_info "Setting global Node.js version to $nodejs_version..."
-  sudo -u "$actual_user" bash -c "source $asdf_dir/asdf.sh && asdf global nodejs $nodejs_version"
+  sudo -u "$actual_user" bash -c "export ASDF_DATA_DIR=\"$user_home/.asdf\" && asdf set --home nodejs $nodejs_version"
 
   log_info "Node.js $nodejs_version installed and set as global version"
 }
