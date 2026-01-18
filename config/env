@@ -14,19 +14,15 @@ export PATH="$HOME/.local/bin:$PATH"
 # Add ~/.cargo/bin (for atuin and other rust tools)
 export PATH="$HOME/.cargo/bin:$PATH"
 
+# Add ~/.atuin/bin (for atuin binary)
+export PATH="$HOME/.atuin/bin:$PATH"
+
+# Add asdf shims (for asdf-managed tools like Node.js)
+export PATH="$HOME/.asdf/shims:$PATH"
+
 # ============================================================================
 # Tool Configurations
 # ============================================================================
-
-# asdf version manager
-if [[ -f "$HOME/.asdf/asdf.sh" ]]; then
-    . "$HOME/.asdf/asdf.sh"
-fi
-
-# asdf completions
-if [[ -f "$HOME/.asdf/completions/asdf.bash" ]]; then
-    . "$HOME/.asdf/completions/asdf.bash"
-fi
 
 # atuin shell history
 if command -v atuin &> /dev/null; then
