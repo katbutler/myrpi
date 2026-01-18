@@ -158,6 +158,7 @@ install_apt_packages() {
     tmux
     lazygit
     httpie
+    sqlite3
   )
 
   for package in "${packages[@]}"; do
