@@ -325,33 +325,21 @@ install_python() {
 
 # Install asdf
 install_asdf() {
-  local actual_user=$(get_actual_user)
-  local user_home=$(eval echo "~$actual_user")
-  local asdf_dir="$user_home/.asdf"
-  local asdf_version="v0.18.0"
+  local asdf_url="https://github.com/asdf-vm/asdf/releases/download/v0.18.0/asdf-v0.18.0-linux-arm64.tar.gz"
+  local asdf_sha256="1749b89039e4af51b549aa0919812fd68722c1a26a90eaf84db0b46a39f557a9"
 
-  # Check if asdf is already properly installed
-  if [[ -f "$asdf_dir/asdf.sh" ]]; then
+  if check_command "asdf"; then
     log_info "asdf is already installed, skipping"
     return 0
   fi
 
-  # If directory exists but asdf.sh doesn't, it's a broken installation
-  if [[ -d "$asdf_dir" ]]; then
-    log_warn "Found existing $asdf_dir but asdf.sh is missing. Removing and reinstalling..."
-    sudo -u "$actual_user" rm -rf "$asdf_dir"
-  fi
+  log_info "Installing asdf..."
+  local tarball="$TEMP_DIR/asdf.tar.gz"
 
-  log_info "Installing asdf via git clone..."
+  download_and_verify "$asdf_url" "$tarball" "$asdf_sha256"
 
-  # Clone asdf repository
-  sudo -u "$actual_user" git clone https://github.com/asdf-vm/asdf.git "$asdf_dir" --branch "$asdf_version"
-
-  # Verify asdf.sh exists
-  if [[ ! -f "$asdf_dir/asdf.sh" ]]; then
-    log_error "asdf.sh not found after git clone. Installation may have failed."
-    return 1
-  fi
+  log_info "Extracting asdf..."
+  tar -xzf "$tarball" -C "$INSTALL_DIR/bin/"
 
   log_info "asdf installed successfully"
 }
